@@ -1,0 +1,28 @@
+import { Modal } from "choco-modal-component";
+import { CartModalContent } from "../CartModalContent/CartModalContent";
+
+interface CartModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
+  const rootElement = document.getElementById("root");
+  const rootWidth = rootElement ? window.getComputedStyle(rootElement).width : "430px";
+
+  return (
+    <Modal
+      modalPosition="bottom"
+      title="장바구니"
+      closeButtonPosition="bottom"
+      isOpen={isOpen}
+      onClose={onClose}
+      onConfirm={() => {}}
+      size="small"
+      buttonText="닫기"
+      rootWidth={rootWidth}
+    >
+      <CartModalContent />
+    </Modal>
+  );
+};

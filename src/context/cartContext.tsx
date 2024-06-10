@@ -1,27 +1,59 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { getCartItems } from "../api/cart";
-
-interface CartItem {
-  id: number;
-  quantity: number;
-}
+import { ReactNode, createContext, useContext, useEffect, useState } from "react";
+import {
+  addCartItem,
+  deleteCartItem,
+  getCartItems,
+  patchCartItemQuantityChange,
+} from "../api/cart";
 
 interface CartContextType {
-  cartItems: CartItem[];
+  cartItems: CartItemProps[];
   fetchCartItems: () => Promise<void>;
+  addItemToCart: (productId: number, quantity: number) => Promise<void>;
+  updateCartItemQuantity: (id: number, quantity: number) => Promise<void>;
+  removeCartItem: (id: number) => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItemProps[]>([]);
 
   const fetchCartItems = async () => {
     try {
       const items = await getCartItems();
-      setCartItems(items.map((item) => ({ id: item.product.id, quantity: item.quantity })));
+      setCartItems(items);
     } catch (error) {
       console.error("Failed to fetch cart items", error);
+    }
+  };
+
+  const addItemToCart = async (productId: number, quantity: number) => {
+    try {
+      await addCartItem(productId, quantity);
+      await fetchCartItems();
+    } catch (error) {
+      console.error("Failed to add item to cart", error);
+    }
+  };
+
+  const updateCartItemQuantity = async (id: number, quantity: number) => {
+    try {
+      await patchCartItemQuantityChange(id, quantity);
+      setCartItems((prevItems) =>
+        prevItems.map((item) => (item.id === id ? { ...item, quantity } : item))
+      );
+    } catch (error) {
+      console.error("Failed to update cart item quantity", error);
+    }
+  };
+
+  const removeCartItem = async (id: number) => {
+    try {
+      await deleteCartItem(id);
+      setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error("Failed to remove cart item", error);
     }
   };
 
@@ -30,7 +62,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <CartContext.Provider value={{ cartItems, fetchCartItems }}>{children}</CartContext.Provider>
+    <CartContext.Provider
+      value={{ cartItems, fetchCartItems, addItemToCart, updateCartItemQuantity, removeCartItem }}
+    >
+      {children}
+    </CartContext.Provider>
   );
 };
 
