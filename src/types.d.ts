@@ -20,7 +20,7 @@ interface UseProductsResult {
   error: Error | null;
   fetchNextPage: () => void;
   isLastPage: boolean;
-  setSortOption: (sortOption: SortOrder) => void;
+  setSortOption: (sortOption: string) => void;
   setCategory: (category: string) => void;
   resetPage: () => void;
   selectedCategory: string;
