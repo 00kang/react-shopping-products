@@ -4,8 +4,20 @@ import { CART_ITEMS_ENDPOINT } from "./endpoints";
 const USER_ID = import.meta.env.VITE_USER_ID;
 const USER_PASSWORD = import.meta.env.VITE_USER_PASSWORD;
 
+const handleResponse = async (response: Response, errorMessage: string) => {
+  if (!response.ok) {
+    throw new Error(errorMessage);
+  }
+  return response;
+};
+
 // 사용자의 장바구니에 아이템 추가
-export async function addCartItem(productId: number, quantity: number): Promise<Response> {
+
+interface addCartItemProps {
+  productId: number;
+  quantity: number;
+}
+export async function addCartItem({ productId, quantity }: addCartItemProps): Promise<Response> {
   const token = generateBasicToken(USER_ID, USER_PASSWORD);
 
   const response = await fetch(`${CART_ITEMS_ENDPOINT}`, {
@@ -17,11 +29,7 @@ export async function addCartItem(productId: number, quantity: number): Promise<
     body: JSON.stringify({ productId, quantity }),
   });
 
-  if (!response.ok) {
-    throw new Error("장바구니 항목 추가에 실패했습니다.");
-  }
-
-  return response;
+  return handleResponse(response, "장바구니 항목 추가에 실패했습니다.");
 }
 
 // 장바구니 아이템 삭제
@@ -34,11 +42,7 @@ export async function deleteCartItem(cartItemId: number): Promise<Response> {
     },
   });
 
-  if (!response.ok) {
-    throw new Error("장바구니 항목 삭제에 실패했습니다.");
-  }
-
-  return response;
+  return handleResponse(response, "장바구니 항목 삭제에 실패했습니다.");
 }
 
 // 사용자의 장바구니 목록 조회
@@ -59,19 +63,20 @@ export async function getCartItems(
     }
   );
 
-  if (!response.ok) {
-    throw new Error("장바구니 항목 목록 조회에 실패했습니다.");
-  }
-
+  await handleResponse(response, "장바구니 항목 목록 조회에 실패했습니다.");
   const data = await response.json();
   return data.content;
 }
 
 // 장바구니 아이템 수량 변경
-export async function patchCartItemQuantityChange(
-  cartItemId: number,
-  quantity: number
-): Promise<Response> {
+interface QuantityProps {
+  cartItemId: number;
+  quantity: number;
+}
+export async function patchCartItemQuantityChange({
+  cartItemId,
+  quantity,
+}: QuantityProps): Promise<Response> {
   const token = generateBasicToken(USER_ID, USER_PASSWORD);
   const response = await fetch(`${CART_ITEMS_ENDPOINT}/${cartItemId}`, {
     method: "PATCH",
@@ -82,9 +87,5 @@ export async function patchCartItemQuantityChange(
     body: JSON.stringify({ quantity }),
   });
 
-  if (!response.ok) {
-    throw new Error("장바구니 항목 수량 변경에 실패했습니다.");
-  }
-
-  return response;
+  return handleResponse(response, "장바구니 항목 수량 변경에 실패했습니다.");
 }
