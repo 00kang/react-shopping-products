@@ -1,29 +1,30 @@
 import { useModal } from "choco-modal-component";
 import { ShoppingCartIcon } from "../../assets";
-import { useFetchCartItems } from "../../hooks/useFetchCartItems";
+import { useFetchCartItems } from "../../hooks";
 import { CartModal } from "../CartModal/CartModal";
 import { BaseButton } from "./BaseButton";
-import { StyledCartButtonImg, StyledCartCount, StyledContainer } from "./CartButton.styled";
+import * as S from "./CartButton.styled";
 
-interface CartButtonProps {
+interface CartButtonProp {
   onClick?: () => void;
 }
-export const CartButton = ({ onClick = () => {} }: CartButtonProps) => {
+
+export const CartButton = ({ onClick }: CartButtonProp) => {
   const { cartItems, isError, isLoading } = useFetchCartItems();
   const { isOpen, openModal, closeModal } = useModal();
 
   const handleClick = () => {
-    onClick();
+    onClick?.();
     openModal();
   };
 
   return (
     <>
-      <BaseButton onClick={handleClick}>
-        <StyledContainer>
-          <StyledCartButtonImg src={ShoppingCartIcon} alt="" />
-          {!isError && !isLoading && <StyledCartCount>{cartItems.length}</StyledCartCount>}
-        </StyledContainer>
+      <BaseButton onClick={handleClick} ariaLabel="장바구니 버튼">
+        <S.StyledContainer>
+          <S.StyledCartButtonImg src={ShoppingCartIcon} alt="" />
+          {!isError && !isLoading && <S.StyledCartCount>{cartItems.length}</S.StyledCartCount>}
+        </S.StyledContainer>
       </BaseButton>
 
       <CartModal isOpen={isOpen} onClose={closeModal} />

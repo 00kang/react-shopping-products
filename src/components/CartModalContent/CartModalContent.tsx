@@ -1,21 +1,7 @@
-import { useFetchCartItems } from "../../hooks/useFetchCartItems";
-import { useRemoveItem } from "../../hooks/useRemoveItem";
+import { useFetchCartItems, useRemoveItem } from "../../hooks";
 import { formatPrice } from "../../utils/format";
-import { DeleteButton } from "../Button";
-import { QuantityControls } from "../QuantityControl/QuantityControl";
-import {
-  StyledCartItem,
-  StyledCartItemImage,
-  StyledCartItemImageContainer,
-  StyledCartItemInfo,
-  StyledCartItemName,
-  StyledCartItemPrice,
-  StyledCartItemText,
-  StyledCartItemTextWrapper,
-  StyledCartTotal,
-  StyledCartTotalPrice,
-  StyledCartTotalTitle,
-} from "./CartModalContent.styled";
+import CartItem from "../CartItem/CartItem";
+import * as S from "./CartModalContent.styled";
 
 export const CartModalContent = () => {
   const { mutate: removeItem } = useRemoveItem();
@@ -26,37 +12,22 @@ export const CartModalContent = () => {
   };
 
   const totalAmount = () => {
-    return isError || isLoading
-      ? 0
-      : cartItems.reduce((total, item) => total + item.product.price * item.quantity, 0);
+    return cartItems.reduce((total, item) => total + item.product.price * item.quantity, 0);
   };
+
+  if (isError || isLoading) {
+    return;
+  }
 
   return (
     <>
-      {!isError &&
-        !isLoading &&
-        cartItems &&
-        cartItems.map((item) => (
-          <StyledCartItem key={item.id}>
-            <StyledCartItemImageContainer>
-              <StyledCartItemImage src={item.product.imageUrl} alt={item.product.name} />
-            </StyledCartItemImageContainer>
-            <StyledCartItemInfo>
-              <StyledCartItemText>
-                <StyledCartItemTextWrapper>
-                  <StyledCartItemName>{item.product.name}</StyledCartItemName>
-                  <StyledCartItemPrice>{formatPrice(item.product.price)}</StyledCartItemPrice>
-                </StyledCartItemTextWrapper>
-                <DeleteButton onClick={() => handleDelete(item.id)} />
-              </StyledCartItemText>
-              <QuantityControls cartItemId={item.id} quantity={item.quantity} />
-            </StyledCartItemInfo>
-          </StyledCartItem>
-        ))}
-      <StyledCartTotal>
-        <StyledCartTotalTitle>총 결제 금액</StyledCartTotalTitle>
-        <StyledCartTotalPrice>{formatPrice(totalAmount())}</StyledCartTotalPrice>
-      </StyledCartTotal>
+      {cartItems.map((item) => (
+        <CartItem key={item.id} item={item} onDelete={handleDelete} />
+      ))}
+      <S.StyledCartTotal>
+        <S.StyledCartTotalTitle>총 결제 금액</S.StyledCartTotalTitle>
+        <S.StyledCartTotalPrice>{formatPrice(totalAmount())}</S.StyledCartTotalPrice>
+      </S.StyledCartTotal>
     </>
   );
 };

@@ -1,18 +1,8 @@
-import { useError } from "../../context";
-import { useAddItem } from "../../hooks/useAddItem";
-import { useFetchCartItems } from "../../hooks/useFetchCartItems";
+import { useAddItem, useFetchCartItems } from "../../hooks";
 import { formatPrice } from "../../utils/format";
-import { CartActionButton } from "../Button";
+import { AddToCartButton } from "../Button";
 import { QuantityControls } from "../QuantityControl/QuantityControl";
-import {
-  StyledContainer,
-  StyledProductImg,
-  StyledProductItem,
-  StyledProductName,
-  StyledProductPrice,
-  StyledQuantityControls,
-  StyledWrapper,
-} from "./ProductItem.styled";
+import * as S from "./ProductItem.styled";
 
 export const ProductItem = ({
   id,
@@ -20,37 +10,32 @@ export const ProductItem = ({
   name,
   price,
 }: Pick<ProductProps, "id" | "imageUrl" | "name" | "price">) => {
-  const { setErrorStatus } = useError();
   const { cartItems } = useFetchCartItems();
   const { mutate: addItem } = useAddItem();
 
   const cartItem = cartItems.find((item) => item.product.id === id);
 
   const handleAddToCart = async () => {
-    try {
-      addItem({ productId: id, quantity: 1 });
-    } catch (error: any) {
-      setErrorStatus(error.response?.status);
-    }
+    addItem({ productId: id, quantity: 1 });
   };
 
   return (
-    <StyledProductItem>
-      <StyledProductImg src={imageUrl} alt="" />
-      <StyledContainer>
-        <StyledWrapper>
-          <StyledProductName>{name}</StyledProductName>
-          <StyledProductPrice>{formatPrice(price)}</StyledProductPrice>
-        </StyledWrapper>
+    <S.StyledProductItem>
+      <S.StyledProductImg src={imageUrl} alt="" />
+      <S.StyledContainer>
+        <S.StyledWrapper>
+          <S.StyledProductName>{name}</S.StyledProductName>
+          <S.StyledProductPrice>{formatPrice(price)}</S.StyledProductPrice>
+        </S.StyledWrapper>
 
         {cartItem ? (
-          <StyledQuantityControls>
+          <S.StyledQuantityControls>
             <QuantityControls cartItemId={cartItem.id} quantity={cartItem.quantity} />
-          </StyledQuantityControls>
+          </S.StyledQuantityControls>
         ) : (
-          <CartActionButton onClick={handleAddToCart} />
+          <AddToCartButton onClick={handleAddToCart} />
         )}
-      </StyledContainer>
-    </StyledProductItem>
+      </S.StyledContainer>
+    </S.StyledProductItem>
   );
 };
